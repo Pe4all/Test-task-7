@@ -28,23 +28,50 @@ export default class Resources extends EventEmitter {
         this.loaders.dracoLoader.setDecoderPath("/draco/");
         this.loaders.gltfLoader.setDRACOLoader(this.loaders.dracoLoader);
     }
+
     startLoading() {
         for (const asset of this.assets) {
             if (asset.type === "glbModel") {
                 this.loaders.gltfLoader.load(asset.path, (file) => {
                     this.singleAssetLoaded(asset, file);
                 });
+            } else if (asset.type === "gif") {
+                this.loadGif(asset.path, (file) => {
+                    this.singleAssetLoaded(asset, file);
+                });
+            } else if (asset.type === "jpg") {
+                this.loadJpg(asset.path, (file) => {
+                    this.singleAssetLoaded(asset, file);
+                });
             }
         }
+    }
+
+    loadGif(path, callback) {
+        const loader = new THREE.TextureLoader();
+        loader.load(path, (texture) => {
+            const gif = {
+                texture: texture,
+                play: function () {
+                    this.texture.needsUpdate = true;
+                },
+            };
+            callback(gif);
+        });
+    }
+
+    loadJpg(path, callback) {
+        const loader = new THREE.TextureLoader();
+        loader.load(path, (texture) => {
+            callback(texture);
+        });
     }
 
     singleAssetLoaded(asset, file) {
         this.items[asset.name] = file;
         this.loaded++;
-        console.log("load");
 
         if (this.loaded === this.queue) {
-            console.log("done");
             this.emit("ready");
         }
     }

@@ -12,7 +12,6 @@ export default class Camera {
         this.createPerspectiveCamera();
         this.createOrthographicCamera();
         this.setOrbitControls();
-        console.log(this.scene);
     }
 
     setOrbitControls() {
